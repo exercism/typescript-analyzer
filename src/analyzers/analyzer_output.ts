@@ -1,11 +1,8 @@
 import fs from 'fs'
-import path from 'path'
 
 import { Comment } from './comment'
 
 export type SolutionStatus = 'refer_to_mentor' | 'approve_as_optimal' | 'approve_with_comment' | 'disapprove_with_comment'
-
-const OUTPUT_FILE = 'analysis.json'
 
 export class AnalyzerOutput {
   public status: SolutionStatus
@@ -35,12 +32,19 @@ export class AnalyzerOutput {
 
   public toString(): string {
     // Currently we want strings, but change to the following if that's fixed:
-    return JSON.stringify(this, null, 2)
+    return JSON.stringify({
+      status: this.status,
+      comments: this.comments.map((comment) =>
+        !comment.variables
+          ? comment.message
+          : { comment: comment.template, variables: comment.variables }
+      )
+    }, null, 2)
   }
 
-  public writeTo(dir: string): Promise<void> {
+  public writeTo(path: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      fs.writeFile(path.join(dir, OUTPUT_FILE), this.toString(), (err) => {
+      fs.writeFile(path, this.toString(), (err) => {
         err ? reject(err) : resolve()
       })
     })

@@ -6,25 +6,25 @@
   "repository": "https://github.com/SleeplessByte/exercism-estree-analyzer",
   "author": "Derk-Jan Karrenbeld <derk-jan+github@karrenbeld.info>",
   "license": "MIT",
-  "bin": "./bin/analyze",
+  "bin": "./bin/analyze.sh",
   "scripts": {
     "analyze": "bin/analyze.sh",
     "analyze:bat": "bin/analyze.bat",
-    "build": "tsc",
-    "dev1": "yarn build && yarn analyze:bat --debug --console two-fer test/solutions/two-fer/018f1444d7a347b5908694394bc9b68e",
-    "dev2": "yarn build && yarn analyze:bat --debug --console two-fer test/solutions/two-fer/3940c477e3014593bfa6a1a0e8e26850",
-    "dev3": "yarn build && yarn analyze:bat --debug --console two-fer test/solutions/two-fer/df3bb5d7131c44ea9c62206cc8d6c225",
-    "dev4": "yarn build && yarn analyze:bat --debug --console two-fer test/solutions/two-fer/480964b2c8a94468bc3476fc1503467b",
+    "analyze:help": "yarn analyze help",
+    "analyze:dev": "yarn build && yarn analyze",
+    "build": "yarn tsc",
     "prepublish": "yarn build"
   },
   "devDependencies": {
     "@types/node": "^11.11.3",
+    "@types/yargs": "^12.0.10",
     "eslint": "^5.15.2",
     "typescript": "^3.3.3333"
   },
   "dependencies": {
     "@typescript-eslint/parser": "^1.4.2",
     "@typescript-eslint/typescript-estree": "^1.4.2",
-    "esm": "^3.2.18"
+    "esm": "^3.2.18",
+    "yargs": "^13.2.2"
   }
 }

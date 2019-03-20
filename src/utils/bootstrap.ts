@@ -2,12 +2,15 @@ import { Exercise } from '../exercise'
 import { Solution } from '../solution'
 import { ExecutionOptions } from './execution_options'
 
-const args = process.argv.slice(2)
-const options = ExecutionOptions.from(args);
-const [slug, inputDir] = args
+process.on('uncaughtException', function(err) {
+  console.error(err)
+  process.stderr.write(err.message)
 
-const exercise = new Exercise(slug)
-const solution = new Solution(inputDir, exercise)
-const outputDir = inputDir
+  process.exit(-1)
+})
 
-export { exercise, solution, options, outputDir }
+const options = ExecutionOptions.create()
+const exercise = new Exercise(options.exercise)
+const solution = new Solution(options.inputDir, exercise)
+
+export { exercise, solution, options }
