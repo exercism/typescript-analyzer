@@ -1,4 +1,4 @@
-import { Program, Node, FunctionDeclaration, ArrowFunctionExpression, MethodDefinition, ClassProperty, FunctionExpression } from "@typescript-eslint/typescript-estree/dist/ts-estree/ts-estree"
+import { Program, Node, FunctionDeclaration, ArrowFunctionExpression, MethodDefinition, ClassProperty, FunctionExpression, ObjectExpression, Property } from "@typescript-eslint/typescript-estree/dist/ts-estree/ts-estree"
 import { AST_NODE_TYPES } from "@typescript-eslint/typescript-estree"
 
 import traverser from 'eslint/lib/util/traverser'
@@ -87,6 +87,33 @@ export function extractMainMethod(program: Program, name: string): MainMethod | 
               }
             }
             break;
+
+          // export default {
+          //   name: () => {}
+          // }
+          case AST_NODE_TYPES.ExportDefaultDeclaration:
+            // This was necessary because type incorrectly did not include this
+            if (node.declaration.type as string === AST_NODE_TYPES.ObjectExpression) {
+              this.skip()
+
+              const objectNode = node.declaration as unknown as ObjectExpression
+              const property = objectNode.properties.find(
+                property =>
+                   property.type === AST_NODE_TYPES.Property
+                && property.key.type === AST_NODE_TYPES.Identifier
+                && property.key.name === name
+              ) as Property | undefined
+
+              if (property) {
+                if (
+                     property.value.type === AST_NODE_TYPES.ArrowFunctionExpression
+                  || property.value.type === AST_NODE_TYPES.FunctionExpression
+                ) {
+                  result = property.value
+                  this.break()
+                }
+              }
+            }
       }
 
     },

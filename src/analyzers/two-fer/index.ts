@@ -4,7 +4,8 @@ import {
   IfStatement,
   LogicalExpression,
   Program,
-  TemplateLiteral
+  TemplateLiteral,
+  Parameter
 } from "@typescript-eslint/typescript-estree/dist/ts-estree/ts-estree"
 import { AST_NODE_TYPES } from "@typescript-eslint/typescript-estree"
 
@@ -27,12 +28,15 @@ import {
   PREFER_EXPLICIT_RETURN_TYPE_FOR_PUBLIC_API,
   UNEXPECTED_BOXED_TYPE
 } from "../generic/generic_comments"
-import { createTypeAnnotation } from "../generic/create_type_annotation";
 
-const OPTIMISE_DEFAULT_VALUE = factory`
-  You currently use a conditional to branch in case there is no value passed in
-  to twoFer, but instead you could set the default value to 'you' to avoid
-  this conditional.
+import { isRequired, isOptional } from "../generic/test_parameter"
+import { parameterName } from '../generic/extract_parameter'
+import { parameterType, annotateType } from "../generic/type_annotations";
+
+const OPTIMISE_DEFAULT_VALUE = factory<'parameter'>`
+  You currently use a conditional to branch in case there is no value passed
+  into twoFer, but instead you could set the default value of ${'parameter'} to
+  'you' to avoid this conditional.
 `('typescript.two-fer.optimise_default_value')
 
 const OPTIMISE_EXPLICIT_DEFAULT_VALUE = factory<'parameter' | 'maybe_undefined_expression'>`
@@ -53,6 +57,8 @@ export class TwoFerAnalyzer extends BaseAnalyzer {
   private _mainMethod!: ReturnType<typeof extractMainMethod>
   private _mainExport!: ReturnType<typeof extractDefaultExport>
 
+  private _mainParameter!: Parameter
+
   get mainMethod() {
     if (!this._mainMethod) {
       this._mainMethod = extractMainMethod(this.program, 'twoFer')
@@ -65,6 +71,14 @@ export class TwoFerAnalyzer extends BaseAnalyzer {
       this._mainExport = extractDefaultExport(this.program)
     }
     return this._mainExport
+  }
+
+  get mainParameter() {
+    if (!this._mainParameter) {
+      this._mainParameter = this.mainMethod!.params[0]
+    }
+
+    return this._mainParameter
   }
 
   public async execute(): Promise<void> {
@@ -140,35 +154,23 @@ export class TwoFerAnalyzer extends BaseAnalyzer {
       this.disapprove(NO_PARAMETER({ function_name: method.id!.name }))
     }
 
-    const firstParameter = method.params[0]
+    const firstParameter = this.mainParameter!
 
     // If the first parameter doesn't have a default value or is not optional,
     // then this won't pass the tests.
-    if (
-         firstParameter.type === AST_NODE_TYPES.Identifier
-      && firstParameter.optional !== true
-    ) {
-      const parameterType =
-           firstParameter.typeAnnotation
-        && createTypeAnnotation(firstParameter.typeAnnotation)
-        || 'any'
+    if (isRequired(firstParameter)) {
       this.disapprove(UNEXPECTED_REQUIRED_PARAMETER({
-        parameter_name: firstParameter.name,
-        parameter_type: parameterType
+        parameter_name: parameterName(firstParameter),
+        parameter_type: parameterType(firstParameter)
       }))
     }
 
     // If they provide a splat, the tests can pass but we should suggest they
     // use a real parameter.
     if (firstParameter.type === AST_NODE_TYPES.RestElement) {
-      const splatArgName =
-           firstParameter.argument.type === AST_NODE_TYPES.Identifier
-        && firstParameter.argument.name
-        || undefined
-      const splatArgType =
-           firstParameter.typeAnnotation
-        && createTypeAnnotation(firstParameter.typeAnnotation)
-        || 'any'
+      const splatArgName = parameterName(firstParameter)
+      const splatArgType = annotateType(firstParameter.typeAnnotation)
+
       this.disapprove(UNEXPECTED_SPLAT_ARGS({ 'splat_arg_name': splatArgName, parameter_type: splatArgType }))
     }
 
@@ -203,9 +205,9 @@ export class TwoFerAnalyzer extends BaseAnalyzer {
         !method.returnType
       || method.returnType.typeAnnotation.type !== AST_NODE_TYPES.TSStringKeyword
     ) {
-      // TODO create actual signature
+      // TODO better signature from actual name and if assignment, add that too
       this.comment(PREFER_EXPLICIT_RETURN_TYPE_FOR_PUBLIC_API({
-        signature: 'twoFer(param: ...)'
+        signature: `twoFer(${parameterName(this.mainParameter)}${isOptional(this.mainParameter) ? '?' : ''}: ${parameterType(this.mainParameter)})`
       }))
     }
   }
@@ -376,15 +378,28 @@ export class TwoFerAnalyzer extends BaseAnalyzer {
       return
     }
 
+    const defaultParameterName = parameterName(this.mainParameter)
+
     const [ifStatement] = ifStatements
     if (ifStatement) {
+      const { test } = ifStatement
+
       // if (!name)
       if (
-           ifStatement.test.type === AST_NODE_TYPES.UnaryExpression
-        && ifStatement.test.operator === "!"
-        && ifStatement.test.argument.type === AST_NODE_TYPES.Identifier
+           test.type === AST_NODE_TYPES.UnaryExpression
+        && test.operator === "!"
+        && test.argument.type === AST_NODE_TYPES.Identifier
+        && test.argument.name === defaultParameterName
       ) {
-        this.disapprove(OPTIMISE_DEFAULT_VALUE())
+        this.disapprove(OPTIMISE_DEFAULT_VALUE({ parameter: defaultParameterName }))
+      }
+
+      // if(name)
+      if (
+           test.type === AST_NODE_TYPES.Identifier
+        && test.name === defaultParameterName
+      ) {
+        this.disapprove(OPTIMISE_DEFAULT_VALUE({ parameter: defaultParameterName }))
       }
 
       // if (name === undefined)
@@ -392,13 +407,15 @@ export class TwoFerAnalyzer extends BaseAnalyzer {
       // if (name === '')           => old test
       // if ('' ==== name)          => old test
       if (
-        ifStatement.test.type === AST_NODE_TYPES.BinaryExpression
-        && ifStatement.test.operator === "==="
-        && ifStatement.test.left.type === AST_NODE_TYPES.Identifier
-        && ifStatement.test.right.type === AST_NODE_TYPES.Identifier
-        && [ifStatement.test.left.name, ifStatement.test.right.name].includes('undefined')
+        test.type === AST_NODE_TYPES.BinaryExpression
+        && test.operator === "==="
+        && test.left.type === AST_NODE_TYPES.Identifier
+        && test.right.type === AST_NODE_TYPES.Identifier
       ) {
-        this.disapprove(OPTIMISE_DEFAULT_VALUE())
+        const { left, right } = test
+        if ([parameterName(this.mainParameter), 'undefined'].every(expected => [left.name, right.name].includes(expected))) {
+          this.disapprove(OPTIMISE_DEFAULT_VALUE({ parameter: defaultParameterName }))
+        }
       }
 
       // if (name == false)
@@ -410,17 +427,21 @@ export class TwoFerAnalyzer extends BaseAnalyzer {
       // if (null == name)
       // if ('' == name)
       if (
-        ifStatement.test.type === AST_NODE_TYPES.BinaryExpression
-        && ifStatement.test.operator === "=="
-        && [ifStatement.test.left.type, ifStatement.test.right.type].includes(AST_NODE_TYPES.Identifier)
+           test.type === AST_NODE_TYPES.BinaryExpression
+        && test.operator === "=="
+        && (
+             (test.left.type === AST_NODE_TYPES.Identifier && test.left.name === parameterName(this.mainParameter))
+          || (test.right.type === AST_NODE_TYPES.Identifier && test.right.name === parameterName(this.mainParameter))
+        )
       ) {
         this.comment(PREFER_STRICT_EQUALITY())
-        this.disapprove(OPTIMISE_DEFAULT_VALUE())
+        this.disapprove(OPTIMISE_DEFAULT_VALUE({ parameter: defaultParameterName }))
       }
 
       return
     }
 
+    // There must be at least one, or it would have bailed out early
     const [{ consequent, alternate }] = conditionalExpressions
     if (
          (consequent.type === AST_NODE_TYPES.Literal && alternate.type === AST_NODE_TYPES.Identifier)
@@ -431,7 +452,7 @@ export class TwoFerAnalyzer extends BaseAnalyzer {
   }
 
   private isDefaultArgumentOptimal() {
-    const parameter = this.mainMethod!.params[0]
+    const parameter = this.mainParameter
     return parameter.type === AST_NODE_TYPES.AssignmentPattern
       && parameter.right
       && parameter.right.type === AST_NODE_TYPES.Literal
