@@ -438,6 +438,8 @@ export class TwoFerAnalyzer extends BaseAnalyzer {
         this.disapprove(OPTIMISE_DEFAULT_VALUE({ parameter: defaultParameterName }))
       }
 
+      // This has a conditional, but we don't know how to default with it
+      this.redirect()
       return
     }
 
@@ -449,6 +451,9 @@ export class TwoFerAnalyzer extends BaseAnalyzer {
     ) {
       this.disapprove(OPTIMISE_DEFAULT_VALUE())
     }
+
+    // This has a conditional, but we don't know how to default with it
+    this.redirect()
   }
 
   private isDefaultArgumentOptimal() {
