@@ -22,11 +22,11 @@ export class Runner {
 }
 
 class DryRunner {
-  static async call(analyzer: BaseAnalyzer, _: ExecutionOptions): Promise<void> {
+  static async call(analyzer: BaseAnalyzer, options: ExecutionOptions): Promise<void> {
     const logger = getLogger()
     const analysis = await analyzer.run()
 
-    logger.log(`=> output: \n\n${analysis.toString()}\n`)
+    logger.log(`=> output: \n\n${analysis.toString(options)}\n`)
     logger.log('=> running dry, no writing to file')
 
     return Promise.resolve()
@@ -34,17 +34,18 @@ class DryRunner {
 }
 
 class WetRunner {
-  static async call(analyzer: BaseAnalyzer, { output, inputDir }: ExecutionOptions): Promise<void> {
+  static async call(analyzer: BaseAnalyzer, options: ExecutionOptions): Promise<void> {
     const logger = getLogger()
     const analysis = await analyzer.run()
 
+    const { output, inputDir } = options
     const outputPath = path.isAbsolute(output)
       ? output
       : path.join(inputDir, output)
 
-    logger.log(`=> output: \n\n${analysis.toString()}\n`)
+    logger.log(`=> output: \n\n${analysis.toString(options)}\n`)
     logger.log(`=> writing to ${outputPath}`)
 
-    return analysis.writeTo(outputPath)
+    return analysis.writeTo(outputPath, options)
   }
 }

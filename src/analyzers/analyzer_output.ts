@@ -1,6 +1,7 @@
 import fs from 'fs'
 
 import { Comment } from './comment'
+import { ExecutionOptions } from '../utils/execution_options';
 
 export type SolutionStatus =
     'refer_to_mentor'
@@ -36,20 +37,25 @@ export class AnalyzerOutput {
     return this
   }
 
-  public toString(): string {
+  public toString(options: ExecutionOptions): string {
     return JSON.stringify({
       status: this.status,
-      comments: this.comments.map((comment) =>
-        !comment.variables
-          ? comment.message
-          : { comment: comment.template, params: comment.variables }
-      )
+      comments: this.comments.map((comment) => {
+        if (!comment.variables || Object.keys(comment.variables).length === 0) {
+          return options.templates ? comment.externalTemplate : comment.message
+        }
+
+        return {
+          comment: options.templates ? comment.externalTemplate : comment.template,
+          params: comment.variables
+        }
+      })
     }, null, 2)
   }
 
-  public writeTo(path: string): Promise<void> {
+  public writeTo(path: string, options: ExecutionOptions): Promise<void> {
     return new Promise((resolve, reject) => {
-      fs.writeFile(path, this.toString(), (err) => {
+      fs.writeFile(path, this.toString(options), (err) => {
         err ? reject(err) : resolve()
       })
     })

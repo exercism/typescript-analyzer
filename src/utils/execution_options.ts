@@ -7,6 +7,7 @@ interface ExecutionOptionsArgs {
   output: string
   inputDir: string
   exercise: string
+  templates: boolean
 }
 
 export class ExecutionOptions {
@@ -16,6 +17,7 @@ export class ExecutionOptions {
   public inputDir!: string
   public exercise!: string
   public dry!: boolean
+  public templates!: boolean
 
   public constructor(options: ExecutionOptionsArgs) {
     (Object.keys(options) as (keyof typeof options)[]).forEach((option) => {
@@ -33,18 +35,28 @@ export class ExecutionOptions {
       .describe('d', 'Unless given, only outputs warnings and errors')
       .describe('c', 'If given, outputs to the console')
       .describe('o', 'Path relative to the input dir where the analyzis results are stored')
+      .describe('templates', 'If given, exports templates instead of messages (feature flag)')
       .describe('dry', 'If given, does not output anything to disk')
-      .boolean(['d', 'c', 'dry'])
+      .boolean(['d', 'c', 'dry', 'templates'])
       .string('o')
       .default('d', process.env.NODE_ENV === 'development')
       .default('c', process.env.NODE_ENV === 'development')
+      .default('templates', false)
       .default('o', './analysis.json')
       .default('dry', false)
       .help('h')
       .alias('h', 'help')
       .argv
 
-    const { d, c, o, dry, _ } = args
-    return new ExecutionOptions({ debug: d, console: c, output: o, dry, exercise: _[0], inputDir: _[1] })
+    const { d, c, o, dry, templates, _ } = args
+    return new ExecutionOptions({
+      debug: d,
+      console: c,
+      output: o,
+      dry,
+      templates,
+      exercise: _[0],
+      inputDir: _[1]
+    })
   }
 }
