@@ -42,8 +42,10 @@ export function parameterName(parameter: Parameter, fallback: string = '<unknown
 function objectLiteralElementName(element: ObjectLiteralElementLike, fallback: string = '<unknown>'): string {
   switch(element.type) {
     case AST_NODE_TYPES.MethodDefinition:
-    case AST_NODE_TYPES.Property:
     case AST_NODE_TYPES.TSAbstractMethodDefinition:
+      return fallback
+
+    case AST_NODE_TYPES.Property:
       return properyNameName(element.key, fallback)
 
     // Don't support nested names for now

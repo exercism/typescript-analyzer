@@ -4,6 +4,7 @@ import { BaseAnalyzer } from './analyzers/base_analyzer'
 
 import { ExecutionOptions } from './utils/execution_options'
 import { get as getLogger } from './utils/logger'
+import { AnalyzerOutput } from './analyzers/analyzer_output';
 
 export class Runner {
 
@@ -14,7 +15,7 @@ export class Runner {
    * @param options the options
    *
    */
-  static async call(analyzer: BaseAnalyzer, options: ExecutionOptions) {
+  static async call(analyzer: BaseAnalyzer, options: ExecutionOptions): Promise<AnalyzerOutput> {
     return await options.dry
       ? DryRunner.call(analyzer, options)
       : WetRunner.call(analyzer, options)
@@ -22,19 +23,19 @@ export class Runner {
 }
 
 class DryRunner {
-  static async call(analyzer: BaseAnalyzer, options: ExecutionOptions): Promise<void> {
+  static async call(analyzer: BaseAnalyzer, options: ExecutionOptions): Promise<AnalyzerOutput> {
     const logger = getLogger()
     const analysis = await analyzer.run()
 
     logger.log(`=> output: \n\n${analysis.toString(options)}\n`)
     logger.log('=> running dry, no writing to file')
 
-    return Promise.resolve()
+    return Promise.resolve(analysis)
   }
 }
 
 class WetRunner {
-  static async call(analyzer: BaseAnalyzer, options: ExecutionOptions): Promise<void> {
+  static async call(analyzer: BaseAnalyzer, options: ExecutionOptions): Promise<AnalyzerOutput> {
     const logger = getLogger()
     const analysis = await analyzer.run()
 
@@ -47,5 +48,6 @@ class WetRunner {
     logger.log(`=> writing to ${outputPath}`)
 
     return analysis.writeTo(outputPath, options)
+      .then(() => analysis)
   }
 }

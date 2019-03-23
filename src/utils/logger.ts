@@ -56,7 +56,7 @@ export interface Logger {
 }
 
 export class Logger {
-  constructor({ debug, console }: ExecutionOptions) {
+  constructor({ debug, console }: Pick<ExecutionOptions, 'debug' | 'console'>) {
     return Object.freeze({
       fatal,
 
