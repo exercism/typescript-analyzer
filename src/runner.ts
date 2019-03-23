@@ -1,0 +1,50 @@
+import path from 'path'
+
+import { BaseAnalyzer } from './analyzers/base_analyzer'
+
+import { ExecutionOptions } from './utils/execution_options'
+import { get as getLogger } from './utils/logger'
+
+export class Runner {
+
+  /**
+   * Run a specific analyzer, given a set of execution options
+   *
+   * @param analyzer the analyzer to run
+   * @param options the options
+   *
+   */
+  static async call(analyzer: BaseAnalyzer, options: ExecutionOptions) {
+    return await options.dry
+      ? DryRunner.call(analyzer, options)
+      : WetRunner.call(analyzer, options)
+  }
+}
+
+class DryRunner {
+  static async call(analyzer: BaseAnalyzer, _: ExecutionOptions): Promise<void> {
+    const logger = getLogger()
+    const analysis = await analyzer.run()
+
+    logger.log(`=> output: \n\n${analysis.toString()}\n`)
+    logger.log('=> running dry, no writing to file')
+
+    return Promise.resolve()
+  }
+}
+
+class WetRunner {
+  static async call(analyzer: BaseAnalyzer, { output, inputDir }: ExecutionOptions): Promise<void> {
+    const logger = getLogger()
+    const analysis = await analyzer.run()
+
+    const outputPath = path.isAbsolute(output)
+      ? output
+      : path.join(inputDir, output)
+
+    logger.log(`=> output: \n\n${analysis.toString()}\n`)
+    logger.log(`=> writing to ${outputPath}`)
+
+    return analysis.writeTo(outputPath)
+  }
+}
