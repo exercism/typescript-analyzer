@@ -263,7 +263,7 @@ export class TwoFerAnalyzer extends BaseAnalyzer {
     this.checkForSolutionWithoutStringTemplate()
 
     if (this.hasCommentary) {
-      this.approve()
+      this.disapprove()
     } else {
       // If we have a one-line method that passes the tests, then it's not
       // something we've planned for, so let's refer it to a mentor
