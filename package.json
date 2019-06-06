@@ -1,6 +1,6 @@
 {
   "name": "@exercism/typescript-analyzer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Exercism analyzer for typescript",
   "main": "dist/analyze.js",
   "repository": "https://github.com/exercism/typescript-analyzer",
