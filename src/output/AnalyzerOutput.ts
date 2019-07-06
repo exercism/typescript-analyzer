@@ -1,12 +1,13 @@
 enum SolutionStatus {
-  /** This is the default situation and should be used when there is any uncertainty. */
+  /** This is the default situation and should be used when there is any
+   *  uncertainty. */
   Redirect = 'refer_to_mentor',
-  /** To be used when a solution matches pre-known optimal solutions */
-  ApproveAsOptimal = 'approve_as_optimal',
-  /** To be used when a solution can be approved but with a known improvement. */
-  ApproveWithComment = 'approve_with_comment',
-  /** To be used when a solution can be disapproved as suboptimal and a comment is provided. */
-  DisapproveWithComment = 'disapprove_with_comment'
+  /** To be used when a solution matches pre-known optimal solutions or when a
+   *  solution can be approved but with a known improvement. */
+  Approve = 'approve',
+  /** To be used when a solution can be disapproved as suboptimal and a comment
+   *  is provided. */
+  Disapprove = 'disapprove'
 }
 
 /**
@@ -29,24 +30,28 @@ export class AnalyzerOutput implements Output {
   /**
    * Mark the solution as approved
    */
-  public approve() {
-    this.status = this.comments.length === 0
-      ? SolutionStatus.ApproveAsOptimal
-      : SolutionStatus.ApproveWithComment
+  public approve(): void {
+    this.status = SolutionStatus.Approve
+
+    this.freeze()
   }
 
   /**
    * Mark the solution as dissapproved
    */
-  public disapprove() {
-    this.status = SolutionStatus.DisapproveWithComment
+  public disapprove(): void {
+    this.status = SolutionStatus.Disapprove
+
+    this.freeze()
   }
 
   /**
    * Mark the solution as refer to mentor
    */
-  public redirect() {
+  public redirect(): void {
     this.status = SolutionStatus.Redirect
+
+    this.freeze()
   }
 
   /**
@@ -55,9 +60,14 @@ export class AnalyzerOutput implements Output {
    * @param {Comment} comment the comment to add
    * @returns self
    */
-  public add(comment: Comment) {
+  public add(comment: Comment): this {
     this.comments.push(comment)
     return this
+  }
+
+  protected freeze(): void {
+    Object.freeze(this)
+    Object.freeze(this.comments)
   }
 
   /**
@@ -70,18 +80,17 @@ export class AnalyzerOutput implements Output {
    * @param {ExecutionOptions} options
    * @returns {Promise<string>}
    */
-  toProcessable({ templates }: ExecutionOptions): Promise<string> {
+  public toProcessable({ noTemplates, pretty }: Pick<ExecutionOptions, 'noTemplates' | 'pretty'>): Promise<string> {
     return Promise.resolve(
       JSON.stringify({
         status: this.status,
-        comments: this.comments.map(templates ? makeExternalComment : makeIsolatedComment)
-
-      }, null, 2)
+        comments: this.comments.map(noTemplates ? makeIsolatedComment : makeExternalComment)
+      }, null, pretty ? 2 : 0)
     )
   }
 }
 
-function makeExternalComment(comment: Comment) {
+function makeExternalComment(comment: Comment): string | { comment: string; params: Comment['variables'] } {
   if (!comment.variables || Object.keys(comment.variables).length === 0) {
     return comment.externalTemplate
   }
@@ -92,7 +101,7 @@ function makeExternalComment(comment: Comment) {
   }
 }
 
-function makeIsolatedComment(comment: Comment) {
+function makeIsolatedComment(comment: Comment): string | { comment: string; params: Comment['variables'] } {
   if (!comment.variables || Object.keys(comment.variables).length === 0) {
     return comment.message
   }

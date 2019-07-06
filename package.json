@@ -1,6 +1,6 @@
 {
   "name": "@exercism/typescript-analyzer",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Exercism analyzer for typescript",
   "main": "dist/analyze.js",
   "repository": "https://github.com/exercism/typescript-analyzer",
@@ -20,8 +20,9 @@
     "analyze:dev:bat": "yarn build && yarn analyze:bat",
     "build": "yarn tsc --build src",
     "prepublish": "yarn test",
+    "lint": "yarn eslint . --ext ts,js,tsx,jsx,mjs",
     "test": "yarn build && jest",
-    "test:watch": "jest --watch"
+    "posttest": "yarn lint"
   },
   "devDependencies": {
     "@babel/core": "^7.4.5",
@@ -30,15 +31,22 @@
     "@types/jest": "^24.0.13",
     "@types/node": "^12.0.4",
     "@types/yargs": "^13.0.0",
+    "@typescript-eslint/eslint-plugin": "^1.11.0",
     "babel-jest": "^24.8.0",
     "eslint": "^5.16.0",
+    "eslint-plugin-jest": "^22.7.2",
     "jest": "^24.8.0",
     "typescript": "^3.5.1"
   },
   "dependencies": {
-    "@typescript-eslint/parser": "^1.9.0",
-    "@typescript-eslint/typescript-estree": "^1.9.0",
+    "@typescript-eslint/parser": "^1.11.0",
+    "@typescript-eslint/typescript-estree": "^1.11.0",
     "esm": "^3.2.25",
+    "module-alias": "^2.2.0",
     "yargs": "^13.2.4"
+  },
+  "_moduleAliases": {
+    "~src": "dist",
+    "~test": "test"
   }
 }

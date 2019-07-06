@@ -1,7 +1,6 @@
-import { getProcessLogger as getLogger, Logger } from '../utils/logger'
+import { getProcessLogger as getLogger, Logger } from '~src/utils/logger'
 
-import { AnalyzerOutput } from '../output/AnalyzerOutput';
-import { ParsedSource, AstParser } from '../parsers/AstParser';
+import { AnalyzerOutput } from '~src/output/AnalyzerOutput';
 
 class EarlyFinalization extends Error {
   constructor() {
@@ -46,7 +45,7 @@ export abstract class AnalyzerImpl implements Analyzer {
     this.output = new AnalyzerOutput()
 
     await this.execute(input)
-      .catch((err) => {
+      .catch((err): void | never => {
         if (err instanceof EarlyFinalization) {
           this.logger.log(`=> early finialization (${this.output.status})`)
         } else {
@@ -82,7 +81,7 @@ export abstract class AnalyzerImpl implements Analyzer {
    * @param comment the optional comment to disapprove with
    * @throws {EarlyFinalization} used as control flow in @see run
    */
-  protected disapprove(comment?: Comment) {
+  protected disapprove(comment?: Comment): never {
     this.comment(comment)
     this.output.disapprove()
 
@@ -110,7 +109,7 @@ export abstract class AnalyzerImpl implements Analyzer {
    *
    * @param {Comment} [comment]
    */
-  protected comment(comment?: Comment) {
+  protected comment(comment?: Comment): void {
     if (!comment) {
       return
     }
@@ -121,7 +120,7 @@ export abstract class AnalyzerImpl implements Analyzer {
   /**
    * Property that returns true if there is at least one comment in the output.
    */
-  get hasCommentary() {
+  public get hasCommentary(): boolean {
     return this.output.comments.length > 0
   }
 

@@ -1,9 +1,9 @@
-import { readFile } from "../utils/fs";
+import { readFile } from "~src/utils/fs";
 
 export class FileInput implements Input {
   constructor(private readonly path: string) {}
 
-  async read(n = 1): Promise<string[]> {
+  public async read(_n = 1): Promise<string[]> {
     const buffer = await readFile(this.path)
     return [buffer.toString("utf8")]
   }
