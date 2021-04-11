@@ -14,7 +14,8 @@
   "bin": {
     "typescript-analyzer": "./bin/run.sh",
     "typescript-analyzer-remote": "./bin/run.sh"
-  },  "scripts": {
+  },
+  "scripts": {
     "analyze": "./bin/analyze.sh",
     "analyze:bat": "./bin/analyze.bat",
     "analyze:help": "yarn analyze help",
@@ -57,8 +58,6 @@
     "@typescript-eslint/parser": "^4.21.0",
     "@typescript-eslint/typescript-estree": "^4.21.0",
     "@typescript-eslint/visitor-keys": "^4.21.0",
-    "esm": "^3.2.25",
-    "module-alias": "^2.2.2",
     "typescript": "^4.2.4",
     "yargs": "^16.2.0"
   }

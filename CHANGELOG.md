@@ -6,6 +6,16 @@ Sync with `javascript-analyzer`
 
 - Updated to v3 specification
 - Fixed Dockerfile
+- Use @exercism/static-analysis
+- Add workflows
+- Add prettier
+- Add plugin/import for eslint
+- Reimplement analyzers using new library
+- Use .meta/config.json when its available
+- Change to compile using babel
+- Change relative paths to module paths for cleaner imports
+- Change analyzer folders to include practice/concept
+- Add e2e test for CI
 
 ## 0.2.0
 

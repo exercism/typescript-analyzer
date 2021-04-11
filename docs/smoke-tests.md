@@ -11,22 +11,21 @@ Add a new file `test/analyzers/<slug>/smoke.ts` and copy the following template,
 replacing `<slug>` with the actual slug.
 
 ```typescript
-import { SlugAnalyzer } from '~src/analyzers/<slug>'
+import { SlugAnalyzer } from '~src/analyzers/<type>/<slug>'
 import { makeAnalyze } from '~test/helpers/smoke'
 
 const analyze = makeAnalyze(() => new SlugAnalyzer())
 
 describe('When running analysis on <slug>', () => {
   it('can approve as optimal', async () => {
-
     const solutionContent = `
     // add a code example that SHOULD be approved as optimal
     `.trim()
 
     const output = await analyze(solutionContent)
 
-    expect(output.status).toBe('approve');
-    expect(output.comments.length).toBe(0);
+    expect(output.status).toBe('approve')
+    expect(output.comments.length).toBe(0)
   })
 })
 ```

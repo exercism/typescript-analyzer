@@ -1,4 +1,4 @@
-name: Push Docker images to DockerHub and ECR
+name: typescript-analyzer / deploy
 
 on:
   push:
