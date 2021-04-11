@@ -234,7 +234,10 @@ export class TwoFerAnalyzer extends AnalyzerImpl {
       }
     }
 
-    const { returnType } = this.mainMethod.node as {
+    const { returnType } = (this.mainMethod.node.type ===
+    AST_NODE_TYPES.MethodDefinition
+      ? this.mainMethod.node.value
+      : this.mainMethod.node) as {
       returnType?: TSESTree.TSTypeAnnotation
     }
 
@@ -610,8 +613,9 @@ export class TwoFerAnalyzer extends AnalyzerImpl {
     // TODO: check version and allow only correct export
     return !!extractExports(this.program).find(
       (extracted) =>
-        extracted.exported === 'twoFer' ||
-        (extracted.exported === 'TwoFer' && extracted.exportKind === 'value')
+        (extracted.exported === 'twoFer' ||
+          (extracted.exported === 'default' && extracted.local === 'TwoFer')) &&
+        extracted.exportKind === 'value'
     )
   }
 

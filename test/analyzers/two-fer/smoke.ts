@@ -32,7 +32,7 @@ describe('When running analysis on two-fer', () => {
     const output = await analyze(solutionContent)
 
     expect(output.comments.length).toBeGreaterThanOrEqual(1)
-    expect(output.comments[0].type).toBe('informative')
+    expect(output.comments[0].type).toBe('actionable')
   })
 
   it('can block with comment', async () => {
