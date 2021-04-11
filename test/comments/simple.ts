@@ -6,13 +6,13 @@ describe(`Comment Factory (simple)`, () => {
   `
 
   it('generates a templatable factory', () => {
-    // Takes one argument
+    // Takes two arguments
     expect(templatable).toBeInstanceOf(Function)
-    expect(templatable).toHaveLength(1)
+    expect(templatable).toHaveLength(2)
   })
 
   describe('templatable factory', () => {
-    const parametarable = templatable('test.javascript.simple')
+    const parametarable = templatable('test.typescript.simple')
 
     it('generates a parametered comment factory', () => {
       expect(parametarable).toBeInstanceOf(Function)
@@ -26,10 +26,10 @@ describe(`Comment Factory (simple)`, () => {
       })
 
       it('assigns the external template identifier', () => {
-        expect(comment.externalTemplate).toBe('test.javascript.simple')
+        expect(comment.externalTemplate).toBe('test.typescript.simple')
       })
 
-      it('doesn\'t modify the original template', () => {
+      it("doesn't modify the original template", () => {
         expect(comment.template).toBe('simple example')
       })
 
@@ -38,5 +38,4 @@ describe(`Comment Factory (simple)`, () => {
       })
     })
   })
-
 })

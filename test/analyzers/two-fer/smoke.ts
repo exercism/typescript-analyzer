@@ -1,11 +1,10 @@
-import { TwoFerAnalyzer } from '~src/analyzers/two-fer'
+import { TwoFerAnalyzer } from '~src/analyzers/practice/two-fer'
 import { makeAnalyze } from '~test/helpers/smoke'
 
 const analyze = makeAnalyze(() => new TwoFerAnalyzer())
 
 describe('When running analysis on two-fer', () => {
   it('can approve as optimal', async () => {
-
     const solutionContent = `
     export default class TwoFer {
       static twoFer(name: string = "you"): string {
@@ -16,12 +15,10 @@ describe('When running analysis on two-fer', () => {
 
     const output = await analyze(solutionContent)
 
-    expect(output.status).toBe('approve');
-    expect(output.comments.length).toBe(0);
+    expect(output.comments.length).toBe(0)
   })
 
   it('can approve with comment', async () => {
-
     const solutionContent = `
     class TwoFer {
       static twoFer(name: string = "you") {
@@ -34,12 +31,11 @@ describe('When running analysis on two-fer', () => {
 
     const output = await analyze(solutionContent)
 
-    expect(output.status).toBe('approve');
-    expect(output.comments.length).toBeGreaterThanOrEqual(1);
+    expect(output.comments.length).toBeGreaterThanOrEqual(1)
+    expect(output.comments[0].type).toBe('actionable')
   })
 
-  it('can dissapprove with comment', async () => {
-
+  it('can block with comment', async () => {
     const solutionContent = `
     class TwoFer {
       static twoFer(name: string) {
@@ -52,12 +48,11 @@ describe('When running analysis on two-fer', () => {
 
     const output = await analyze(solutionContent)
 
-    expect(output.status).toBe('disapprove');
-    expect(output.comments.length).toBeGreaterThanOrEqual(1);
+    expect(output.comments.length).toBeGreaterThanOrEqual(1)
+    expect(output.comments[0].type).toBe('actionable')
   })
 
-  it('can refer to mentor', async () => {
-
+  it('can ignore solutions', async () => {
     const solutionContent = `
     const whomst = 'for'
 
@@ -72,6 +67,6 @@ describe('When running analysis on two-fer', () => {
 
     const output = await analyze(solutionContent)
 
-    expect(output.status).toBe('refer_to_mentor');
+    expect(output.comments.length).toBeGreaterThanOrEqual(1)
   })
 })
