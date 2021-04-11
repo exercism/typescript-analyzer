@@ -14,7 +14,7 @@ const TESTS = [
     input: {
       fixture: '2',
       slug: 'two-fer',
-      file: 'two-fer.js',
+      file: 'two-fer.ts',
     },
     expected: {
       comments: 2,
@@ -24,7 +24,7 @@ const TESTS = [
     input: {
       fixture: '36',
       slug: 'two-fer',
-      file: 'two-fer.js',
+      file: 'two-fer.ts',
     },
     expected: {
       comments: 2,
@@ -34,7 +34,7 @@ const TESTS = [
     input: {
       fixture: '261',
       slug: 'two-fer',
-      file: 'two-fer.js',
+      file: 'two-fer.ts',
     },
     expected: {
       comments: 1,
@@ -45,7 +45,7 @@ const TESTS = [
     input: {
       fixture: '408',
       slug: 'two-fer',
-      file: 'two-fer.js',
+      file: 'two-fer.ts',
     },
     expected: {
       comments: 1,
