@@ -1,8 +1,10 @@
-import { AnalyzerOutput } from  '~src/output/AnalyzerOutput'
-import { factory } from '~src/comments/comment';
+import { AnalyzerOutput } from '~src/output/AnalyzerOutput'
+import { CommentType, factory } from '~src/comments/comment'
 
-const COMMENT_WITHOUT_PARAMS_IDENTIFIER = 'javascript.test.output.to-processable.simple'
-const COMMENT_WITH_PARAMS_IDENTIFIER = 'javascript.test.output.to-processable.parameters'
+const COMMENT_WITHOUT_PARAMS_IDENTIFIER =
+  'typescript.test.output.to-processable.simple'
+const COMMENT_WITH_PARAMS_IDENTIFIER =
+  'typescript.test.output.to-processable.parameters'
 
 const COMMENT_SIMPLE = factory`
 simple comment without parameters
@@ -12,6 +14,27 @@ const COMMENT_PARAMETERS = factory<'foo' | 'bar'>`
 ${'foo'} is foo, given also ${'bar'}
 `(COMMENT_WITH_PARAMS_IDENTIFIER)
 
+const COMMENT_BLOCKING_IDENTIFIER = 'typescript.test.blocking'
+const COMMENT_ACTIONABLE_IDENTIFIER = 'typescript.test.actionable'
+const COMMENT_INFORMATIVE_IDENTIFIER = 'typescript.test.informative'
+const COMMENT_PARTY_IDENTIFIER = 'typescript.test.party'
+
+const COMMENT_BLOCKING = factory`
+YOU. SHALL. NOT. PAAAAAAAS.
+`(COMMENT_BLOCKING_IDENTIFIER, CommentType.Essential)
+
+const COMMENT_ACTIONABLE = factory`
+X ALL THE Y
+`(COMMENT_ACTIONABLE_IDENTIFIER, CommentType.Actionable)
+
+const COMMENT_INFORMATIVE = factory`
+wElL AcKtUaLlY
+`(COMMENT_INFORMATIVE_IDENTIFIER, CommentType.Informative)
+
+const COMMENT_PARTY = factory`
+Winner Winner. Chicken Dinner.
+`(COMMENT_PARTY_IDENTIFIER, CommentType.Celebratory)
+
 const PARAMS = { foo: 'actual-foo', bar: 'actual-bar' }
 
 describe('AnalyzerOutput#toProcessable', () => {
@@ -20,18 +43,21 @@ describe('AnalyzerOutput#toProcessable', () => {
       const output = new AnalyzerOutput()
       output.add(COMMENT_SIMPLE())
       output.add(COMMENT_PARAMETERS(PARAMS))
-      output.approve()
+      output.freeze()
 
-      const result = await output.toProcessable({ noTemplates: true, pretty: false })
+      const result = await output.toProcessable({
+        noTemplates: true,
+        pretty: false,
+      })
       expect(JSON.parse(result)).toEqual({
-        status: 'approve',
         comments: [
-          'simple comment without parameters',
+          { comment: 'simple comment without parameters', type: 'informative' },
           {
             comment: '%{foo} is foo, given also %{bar}',
-            params: PARAMS
-          }
-        ]
+            params: PARAMS,
+            type: 'informative',
+          },
+        ],
       })
     })
   })
@@ -41,62 +67,143 @@ describe('AnalyzerOutput#toProcessable', () => {
       const output = new AnalyzerOutput()
       output.add(COMMENT_SIMPLE())
       output.add(COMMENT_PARAMETERS(PARAMS))
-      output.approve()
+      output.freeze()
 
-      const result = await output.toProcessable({ noTemplates: false, pretty: false })
+      const result = await output.toProcessable({
+        noTemplates: false,
+        pretty: false,
+      })
       expect(JSON.parse(result)).toEqual({
-        status: 'approve',
         comments: [
-          COMMENT_WITHOUT_PARAMS_IDENTIFIER,
+          { comment: COMMENT_WITHOUT_PARAMS_IDENTIFIER, type: 'informative' },
           {
             comment: COMMENT_WITH_PARAMS_IDENTIFIER,
-            params: PARAMS
-          }
-        ]
+            params: PARAMS,
+            type: 'informative',
+          },
+        ],
       })
     })
   })
 
-  describe('when approved without comments', () => {
-    it('outputs the correct status', async () => {
+  describe('with a blocking comment', () => {
+    it('generates the correct output', async () => {
       const output = new AnalyzerOutput()
-      output.approve()
+      output.add(COMMENT_BLOCKING())
+      output.freeze()
 
-      const result = await output.toProcessable({ noTemplates: false, pretty: false })
-      expect(JSON.parse(result)).toMatchObject({ status: 'approve' })
-
+      const result = await output.toProcessable({
+        noTemplates: false,
+        pretty: false,
+      })
+      expect(JSON.parse(result)).toEqual({
+        comments: [
+          {
+            comment: COMMENT_BLOCKING_IDENTIFIER,
+            type: 'essential',
+          },
+        ],
+      })
     })
   })
 
-  describe('when approved with comments', () => {
-    it('outputs the correct status', async () => {
+  describe('with an actionable comment', () => {
+    it('generates the correct output', async () => {
       const output = new AnalyzerOutput()
-      output.add(COMMENT_SIMPLE())
-      output.approve()
+      output.add(COMMENT_ACTIONABLE())
+      output.freeze()
 
-      const result = await output.toProcessable({ noTemplates: false, pretty: false })
-      expect(JSON.parse(result)).toMatchObject({ status: 'approve' })
+      const result = await output.toProcessable({
+        noTemplates: false,
+        pretty: false,
+      })
+      expect(JSON.parse(result)).toEqual({
+        comments: [
+          {
+            comment: COMMENT_ACTIONABLE_IDENTIFIER,
+            type: 'actionable',
+          },
+        ],
+      })
     })
   })
 
-  describe('when disapproved with comments', () => {
-    it('outputs the correct status', async () => {
+  describe('with an informative comment', () => {
+    it('generates the correct output', async () => {
       const output = new AnalyzerOutput()
-      output.add(COMMENT_SIMPLE())
-      output.disapprove()
+      output.add(COMMENT_INFORMATIVE())
+      output.freeze()
 
-      const result = await output.toProcessable({ noTemplates: false, pretty: false })
-      expect(JSON.parse(result)).toMatchObject({ status: 'disapprove' })
+      const result = await output.toProcessable({
+        noTemplates: false,
+        pretty: false,
+      })
+      expect(JSON.parse(result)).toEqual({
+        comments: [
+          {
+            comment: COMMENT_INFORMATIVE_IDENTIFIER,
+            type: 'informative',
+          },
+        ],
+      })
     })
   })
 
-  describe('when redirected', () => {
-    it('outputs the correct status', async () => {
+  describe('with an informative comment', () => {
+    it('generates the correct output', async () => {
       const output = new AnalyzerOutput()
-      output.redirect()
+      output.add(COMMENT_PARTY())
+      output.freeze()
 
-      const result = await output.toProcessable({ noTemplates: false, pretty: false })
-      expect(JSON.parse(result)).toMatchObject({ status: 'refer_to_mentor' })
+      const result = await output.toProcessable({
+        noTemplates: false,
+        pretty: false,
+      })
+      expect(JSON.parse(result)).toEqual({
+        comments: [
+          {
+            comment: COMMENT_PARTY_IDENTIFIER,
+            type: 'celebratory',
+          },
+        ],
+      })
+    })
+  })
+
+  describe('with multiple comments and a summary', () => {
+    it('generates the correct output', async () => {
+      const output = new AnalyzerOutput()
+      output.add(COMMENT_BLOCKING())
+      output.add(COMMENT_ACTIONABLE())
+      output.add(COMMENT_INFORMATIVE())
+      output.add(COMMENT_PARTY())
+      output.freeze('Here is a lot of commentary')
+
+      const result = await output.toProcessable({
+        noTemplates: false,
+        pretty: false,
+      })
+      expect(JSON.parse(result)).toEqual({
+        summary: 'Here is a lot of commentary',
+        comments: [
+          {
+            comment: COMMENT_BLOCKING_IDENTIFIER,
+            type: 'essential',
+          },
+          {
+            comment: COMMENT_ACTIONABLE_IDENTIFIER,
+            type: 'actionable',
+          },
+          {
+            comment: COMMENT_INFORMATIVE_IDENTIFIER,
+            type: 'informative',
+          },
+          {
+            comment: COMMENT_PARTY_IDENTIFIER,
+            type: 'celebratory',
+          },
+        ],
+      })
     })
   })
 })

@@ -1,11 +1,12 @@
-import { getProcessLogger as getLogger, Logger } from '~src/utils/logger'
-
-import { AnalyzerOutput } from '~src/output/AnalyzerOutput';
+import type { Input } from '@exercism/static-analysis'
+import { getProcessLogger, Logger } from '@exercism/static-analysis'
+import type { Analyzer, Comment, Output } from '~src/interface'
+import { AnalyzerOutput } from '~src/output/AnalyzerOutput'
 
 class EarlyFinalization extends Error {
   constructor() {
     super('Early finalization')
-    Object.setPrototypeOf(this, EarlyFinalization.prototype);
+    Object.setPrototypeOf(this, EarlyFinalization.prototype)
     Error.captureStackTrace(this, this.constructor)
   }
 }
@@ -18,14 +19,14 @@ export abstract class AnalyzerImpl implements Analyzer {
    * Creates an instance of an analyzer
    */
   constructor() {
-    this.logger = getLogger()
+    this.logger = getProcessLogger()
   }
 
   /**
    * Runs the analyzer
    *
    * This is defined as a property instead of a method, so that it can not be
-   * overriddden in a subclass. Subclasses should override @see execute instead.
+   * overridden in a subclass. Subclasses should override @see execute instead.
    *
    * @returns The promise that resolves the analyzer output.
    *
@@ -44,14 +45,13 @@ export abstract class AnalyzerImpl implements Analyzer {
     //
     this.output = new AnalyzerOutput()
 
-    await this.execute(input)
-      .catch((err): void | never => {
-        if (err instanceof EarlyFinalization) {
-          this.logger.log(`=> early finialization (${this.output.status})`)
-        } else {
-          throw err
-        }
-      })
+    await this.execute(input).catch((err): void | never => {
+      if (err instanceof EarlyFinalization) {
+        this.logger.log(`=> early finialization (${this.output.status})`)
+      } else {
+        throw err
+      }
+    })
 
     return this.output
   }

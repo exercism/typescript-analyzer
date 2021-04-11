@@ -1,26 +1,43 @@
-import { FixtureInput } from "~test/helpers/input/FixtureInput";
+import { Analyzer, ExecutionOptions, Output } from '~src/interface'
+import { FixtureInput } from './input/FixtureInput'
+
+const EMPTY_OPTIONS: ExecutionOptions = {
+  debug: false,
+  console: false,
+  dry: false,
+  noTemplates: false,
+  pretty: true,
+  inputDir: '__',
+  output: '__',
+  exercise: '__',
+}
 
 type AnalyzerFactory = () => Analyzer
-type generateAll = (status: Output['status'], fixtures: readonly number[]) => void
+type generateAll = (fixtures: readonly number[]) => void
 
-export function makeTestGenerator(slug: string, AnalyzerFactory: AnalyzerFactory): generateAll {
+export function makeTestGenerator(
+  slug: string,
+  AnalyzerFactory: AnalyzerFactory
+): generateAll {
   function analyze(fixture: number): Promise<Output> {
     const analyzer = AnalyzerFactory()
     const input = new FixtureInput(slug, fixture)
 
-    return analyzer.run(input)
+    return analyzer.run(input, EMPTY_OPTIONS)
   }
 
-  return async function (status: Output['status'], fixtures: readonly number[]) {
-    describe(`and expecting it to ${status.replace(/_/g, ' ')}`, () => {
-      fixtures.slice().sort().forEach((fixture) => {
-        const identifier = `${slug}/${fixture}`
-        it(`matches ${identifier}'s output`, async () => {
-          const output = await analyze(fixture)
-          expect(output.status).toBe(status);
-          expect(output).toMatchSnapshot(`output`)
+  return async function (fixtures: readonly number[]): Promise<void> {
+    describe(`and expecting`, () => {
+      fixtures
+        .slice()
+        .sort()
+        .forEach((fixture) => {
+          const identifier = `${slug}/${fixture}`
+          it(`matches ${identifier}'s output`, async () => {
+            const output = await analyze(fixture)
+            expect(output).toMatchSnapshot(`output`)
+          })
         })
-      })
     })
   }
 }

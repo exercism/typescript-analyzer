@@ -1,7 +1,5 @@
-class TwoFer {
-  static twoFer(msg: String = "you") {
+export function twoFer(msg: string = "you") {
     return `One for ${msg}, one for me.`
   }
-}
 
-export default TwoFer
+

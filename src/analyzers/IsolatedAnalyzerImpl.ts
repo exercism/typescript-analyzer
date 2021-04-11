@@ -1,6 +1,22 @@
-import { getProcessLogger as getLogger, Logger } from '~src/utils/logger'
-
-import { IsolatedAnalyzerOutput, EarlyFinalization } from '~src/output/IsolatedAnalyzerOutput';
+import type { Input } from '@exercism/static-analysis'
+import {
+  getProcessLogger,
+  Logger,
+  NoSourceError,
+  ParserError,
+} from '@exercism/static-analysis'
+import type {
+  Analyzer,
+  ExecutionOptions,
+  Output,
+  WritableOutput,
+} from '~src/interface'
+import {
+  EarlyFinalization,
+  IsolatedAnalyzerOutput,
+} from '~src/output/IsolatedAnalyzerOutput'
+import { makeNoSourceOutput } from '~src/output/makeNoSourceOutput'
+import { makeParseErrorOutput } from '~src/output/makeParseErrorOutput'
 
 export abstract class IsolatedAnalyzerImpl implements Analyzer {
   protected readonly logger: Logger
@@ -9,7 +25,7 @@ export abstract class IsolatedAnalyzerImpl implements Analyzer {
    * Creates an instance of an analyzer
    */
   constructor() {
-    this.logger = getLogger()
+    this.logger = getProcessLogger()
   }
 
   /**
@@ -22,16 +38,34 @@ export abstract class IsolatedAnalyzerImpl implements Analyzer {
    *
    * @memberof BaseAnalyzer
    */
-  public async run(input: Input): Promise<Output> {
+  public async run(input: Input, options: ExecutionOptions): Promise<Output> {
+    return this.run_(input, options).catch((err: Error) => {
+      // Here we handle errors that blew up the analyzer but we don't want to
+      // report as blown up. This converts these errors to the commentary.
+      if (err instanceof NoSourceError) {
+        return makeNoSourceOutput(err)
+      } else if (err instanceof ParserError) {
+        return makeParseErrorOutput(err)
+      }
+
+      // Unhandled issue
+      return Promise.reject(err)
+    })
+  }
+
+  private async run_(input: Input, options: ExecutionOptions): Promise<Output> {
     const output = new IsolatedAnalyzerOutput()
-    await this.execute(input, output)
-      .catch((err): void | never => {
-        if (err instanceof EarlyFinalization) {
-          this.logger.log(`=> early finialization (${output.status})`)
-        } else {
-          throw err
-        }
-      })
+
+    // Block and execute
+    await this.execute(input, output, options).catch((err): void | never => {
+      // The isolated analyzer output can use exceptions as control flow.
+      // This block here explicitly accepts this.
+      if (err instanceof EarlyFinalization) {
+        this.logger.log(`=> early finalization (${output.summary || '-'})`)
+      } else {
+        throw err
+      }
+    })
 
     return output
   }
@@ -39,5 +73,9 @@ export abstract class IsolatedAnalyzerImpl implements Analyzer {
   /**
    * Execute the analyzer
    */
-  protected abstract execute(input: Input, output: WritableOutput): Promise<void>
+  protected abstract execute(
+    input: Input,
+    output: WritableOutput,
+    options: ExecutionOptions
+  ): Promise<void>
 }

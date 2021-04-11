@@ -1,15 +1,28 @@
-import { Parameter, ObjectLiteralElementLike, Expression, PropertyName, VariableDeclarator } from "@typescript-eslint/typescript-estree/dist/ts-estree/ts-estree"
-import { AST_NODE_TYPES } from "@typescript-eslint/typescript-estree"
+import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree'
 
-export function parameterName(parameter: Parameter | VariableDeclarator, fallback: string = '<unknown>'): string {
-  switch(parameter.type) {
+type Parameter = TSESTree.Parameter
+type ObjectLiteralElementLike = TSESTree.ObjectLiteralElementLike
+type Expression = TSESTree.Expression
+type PropertyName = TSESTree.PropertyName
+type VariableDeclarator = TSESTree.VariableDeclarator
+type DestructuringPattern = TSESTree.DestructuringPattern
+
+export function parameterName(
+  parameter: Parameter | VariableDeclarator,
+  fallback = '<unknown>'
+): string {
+  switch (parameter.type) {
     case AST_NODE_TYPES.VariableDeclarator: {
       return parameterName(parameter.id)
     }
 
     // [arg]?: type
     case AST_NODE_TYPES.ArrayPattern: {
-      return `[${parameter.elements.map((element): string => expressionName(element, fallback)).join(', ')}]`
+      return `[${parameter.elements
+        .map((element): string =>
+          element ? expressionName(element, fallback) : fallback
+        )
+        .join(', ')}]`
     }
 
     // (...)?: type = expression
@@ -24,11 +37,24 @@ export function parameterName(parameter: Parameter | VariableDeclarator, fallbac
 
     // { arg }?: type
     case AST_NODE_TYPES.ObjectPattern: {
-      return `{${parameter.properties.map((element): string => objectLiteralElementName(element, fallback)).join(', ')}`
+      return `{${parameter.properties
+        .map((element): string => {
+          if (element.type === AST_NODE_TYPES.RestElement) {
+            switch (element.argument.type) {
+              case AST_NODE_TYPES.ArrayPattern:
+              case AST_NODE_TYPES.Identifier:
+              case AST_NODE_TYPES.ObjectPattern:
+                return parameterName(element.argument)
+            }
+          }
+
+          return fallback
+        })
+        .join(', ')}`
     }
     // ...arg?: type
     case AST_NODE_TYPES.RestElement: {
-      switch(parameter.argument.type) {
+      switch (parameter.argument.type) {
         case AST_NODE_TYPES.ArrayPattern:
         case AST_NODE_TYPES.Identifier:
         case AST_NODE_TYPES.ObjectPattern:
@@ -49,8 +75,11 @@ export function parameterName(parameter: Parameter | VariableDeclarator, fallbac
   }
 }
 
-function objectLiteralElementName(element: ObjectLiteralElementLike, fallback: string = '<unknown>'): string {
-  switch(element.type) {
+function objectLiteralElementName(
+  element: ObjectLiteralElementLike,
+  fallback = '<unknown>'
+): string {
+  switch (element.type) {
     case AST_NODE_TYPES.MethodDefinition:
     case AST_NODE_TYPES.TSAbstractMethodDefinition:
       return fallback
@@ -59,7 +88,7 @@ function objectLiteralElementName(element: ObjectLiteralElementLike, fallback: s
       return properyNameName(element.key, fallback)
 
     // Don't support nested names for now
-    case AST_NODE_TYPES.RestElement:
+    // case AST_NODE_TYPES.RestElement:
     case AST_NODE_TYPES.SpreadElement:
       return fallback
 
@@ -68,21 +97,34 @@ function objectLiteralElementName(element: ObjectLiteralElementLike, fallback: s
   }
 }
 
-function properyNameName(key: PropertyName, _fallback: string = '<unknown>'): string {
+function properyNameName(key: PropertyName, fallback = '<unknown>'): string {
   switch (key.type) {
     case AST_NODE_TYPES.Identifier:
       return key.name
     case AST_NODE_TYPES.Literal:
       return key.raw
+    case AST_NODE_TYPES.ArrayPattern:
+    case AST_NODE_TYPES.ObjectPattern:
+    case AST_NODE_TYPES.RestElement:
+    case AST_NODE_TYPES.SpreadElement:
+      return fallback
+    case AST_NODE_TYPES.MemberExpression:
+      return properyNameName(key.property, fallback)
+    case AST_NODE_TYPES.ArrowFunctionExpression:
+    case AST_NODE_TYPES.AssignmentExpression:
+    case AST_NODE_TYPES.BinaryExpression:
+      return fallback
 
     default:
-      return key
+      return fallback
   }
 }
 
-function expressionName(element: Expression, fallback: string = '<unknown>'): string {
-  switch(element.type) {
-    case AST_NODE_TYPES.RestElement:
+function expressionName(
+  element: Expression | DestructuringPattern,
+  fallback = '<unknown>'
+): string {
+  switch (element.type) {
     case AST_NODE_TYPES.ArrayPattern:
     case AST_NODE_TYPES.ObjectPattern:
     case AST_NODE_TYPES.Identifier:
