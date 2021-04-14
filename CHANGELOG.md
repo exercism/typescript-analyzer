@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1
+
+- Fix various comment references
+
 ## 0.3.0
 
 Sync with `javascript-analyzer`

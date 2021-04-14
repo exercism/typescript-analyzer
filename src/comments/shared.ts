@@ -92,7 +92,7 @@ The tests won't pass without it.
 
 export const UNEXPECTED_PARAMETER = factory<'type'>`
 Did not find a parameter of type \`${'type'}\`.
-`('javascript.general.unexpected_parameter', CommentType.Actionable)
+`('typescript.general.unexpected_parameter', CommentType.Actionable)
 
 export const UNEXPECTED_SPLAT_ARGS = factory<
   'splat-arg.name' | 'parameter.type'
@@ -145,16 +145,14 @@ Instead of \`${'kind'} ${'name'}\`, consider using \`const\`.
 true for this top-level constant. (Not to be confused with _immutable values_).
 `('typescript.generic.prefer_const_over_let_and_var', CommentType.Informative)
 
-// TODO place these files in typescript too.
-// TODO replace javascript. with typescript.
 export const ERROR_CAPTURED_NO_SOURCE = factory<'expected' | 'available'>`
 Expected source file "${'expected'}", found: ${'available'}.
-`('javascript.general.error_captured_no_source', CommentType.Essential)
+`('typescript.general.error_captured_no_source', CommentType.Essential)
 
 export const EXEMPLAR_SOLUTION = factory`
 🎉 That is an exemplar solution. Congratulations. It is exactly what we think
 is the most idiomatic implementation of the tasks at hand. Rejoice!
-`('javascript.general.exemplar', CommentType.Celebratory)
+`('typescript.general.exemplar', CommentType.Celebratory)
 
 export const FUNCTION_NOT_OPTIMAL = factory<'function'>`
 📕 It looks like ${'function'} is not optimal. This analyzer is a Work In
@@ -162,7 +160,7 @@ Progress and can't tell you exactly why it thinks something is not optimal. Feel
 free to ignore this feedback. If you wish to attempt to resolve it, the advice
 is as follows: this function is expected to be as simple as possible, without
 declaring any extra variables.`(
-  'javascript.general.function_not_optimal',
+  'typescript.general.function_not_optimal',
   CommentType.Informative
 )
 
@@ -172,9 +170,9 @@ provides the correct exports and correct function declarations, with the
 expected amount and format of parameters. It is sometimes possible to change the
 function signature (change how its parameters work), but in this case the
 parameters were already optimally defined.
-`('javascript.general.signature_changed', CommentType.Informative)
+`('typescript.general.signature_changed', CommentType.Informative)
 
 export const REPLACE_MAGIC_WITH_IDENTIFIER = factory<'literal' | 'identifier'>`
 The a magic value \`${'literal'}\` can be replaced by \`${'identifier'}\`. When
 possible, named constants are often a better choice than in-lined literals.
-`('javascript.general.replace_magic_with_identifier', CommentType.Actionable)
+`('typescript.general.replace_magic_with_identifier', CommentType.Actionable)

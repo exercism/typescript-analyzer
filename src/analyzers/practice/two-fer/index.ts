@@ -65,7 +65,10 @@ const OPTIMISE_EXPLICIT_DEFAULT_VALUE = factory<
 Instead of relying on ${'maybe-undefined-expression'} being "undefined" when
 no value is passed in, you could set the default value of '${'parameter'}' to
 'you'.
-`('typescript.two-fer.optimise_explicity_default_value', CommentType.Actionable)
+`(
+  'typescript.two-fer.optimise_explicitly_default_value',
+  CommentType.Actionable
+)
 
 const REDIRECT_INCORRECT_STRING_TEMPLATE = factory`
 The string template looks incorrect. Expected a template with 3 components.
