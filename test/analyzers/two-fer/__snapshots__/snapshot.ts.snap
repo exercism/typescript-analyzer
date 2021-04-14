@@ -130,7 +130,7 @@ compilation fails and you have successfully guarded against a source of bugs.",
       },
     },
     CommentImpl {
-      "externalTemplate": "typescript.two-fer.optimise_explicity_default_value",
+      "externalTemplate": "typescript.two-fer.optimise_explicitly_default_value",
       "message": "Instead of relying on %{maybe-undefined-expression} being \\"undefined\\" when
 no value is passed in, you could set the default value of 'name' to
 'you'.",
@@ -1469,7 +1469,7 @@ exports[`When running analysis on two-fer fixtures and expecting matches two-fer
 AnalyzerOutput {
   "comments": Array [
     CommentImpl {
-      "externalTemplate": "typescript.two-fer.optimise_explicity_default_value",
+      "externalTemplate": "typescript.two-fer.optimise_explicitly_default_value",
       "message": "Instead of relying on %{maybe-undefined-expression} being \\"undefined\\" when
 no value is passed in, you could set the default value of 'name' to
 'you'.",
@@ -2084,7 +2084,7 @@ compilation fails and you have successfully guarded against a source of bugs.",
       },
     },
     CommentImpl {
-      "externalTemplate": "typescript.two-fer.optimise_explicity_default_value",
+      "externalTemplate": "typescript.two-fer.optimise_explicitly_default_value",
       "message": "Instead of relying on %{maybe-undefined-expression} being \\"undefined\\" when
 no value is passed in, you could set the default value of 'name' to
 'you'.",
@@ -6134,7 +6134,7 @@ compilation fails and you have successfully guarded against a source of bugs.",
       },
     },
     CommentImpl {
-      "externalTemplate": "typescript.two-fer.optimise_explicity_default_value",
+      "externalTemplate": "typescript.two-fer.optimise_explicitly_default_value",
       "message": "Instead of relying on %{maybe-undefined-expression} being \\"undefined\\" when
 no value is passed in, you could set the default value of 'name' to
 'you'.",
@@ -6244,7 +6244,7 @@ compilation fails and you have successfully guarded against a source of bugs.",
       },
     },
     CommentImpl {
-      "externalTemplate": "typescript.two-fer.optimise_explicity_default_value",
+      "externalTemplate": "typescript.two-fer.optimise_explicitly_default_value",
       "message": "Instead of relying on %{maybe-undefined-expression} being \\"undefined\\" when
 no value is passed in, you could set the default value of 'name' to
 'you'.",
@@ -10314,7 +10314,7 @@ compilation fails and you have successfully guarded against a source of bugs.",
       },
     },
     CommentImpl {
-      "externalTemplate": "typescript.two-fer.optimise_explicity_default_value",
+      "externalTemplate": "typescript.two-fer.optimise_explicitly_default_value",
       "message": "Instead of relying on %{maybe-undefined-expression} being \\"undefined\\" when
 no value is passed in, you could set the default value of 'name' to
 'you'.",
@@ -11361,7 +11361,7 @@ compilation fails and you have successfully guarded against a source of bugs.",
       },
     },
     CommentImpl {
-      "externalTemplate": "typescript.two-fer.optimise_explicity_default_value",
+      "externalTemplate": "typescript.two-fer.optimise_explicitly_default_value",
       "message": "Instead of relying on %{maybe-undefined-expression} being \\"undefined\\" when
 no value is passed in, you could set the default value of 'name' to
 'you'.",
@@ -12177,7 +12177,7 @@ compilation fails and you have successfully guarded against a source of bugs.",
       },
     },
     CommentImpl {
-      "externalTemplate": "typescript.two-fer.optimise_explicity_default_value",
+      "externalTemplate": "typescript.two-fer.optimise_explicitly_default_value",
       "message": "Instead of relying on %{maybe-undefined-expression} being \\"undefined\\" when
 no value is passed in, you could set the default value of 'name' to
 'you'.",
