@@ -237,10 +237,11 @@ export class TwoFerAnalyzer extends AnalyzerImpl {
       }
     }
 
-    const { returnType } = (this.mainMethod.node.type ===
-    AST_NODE_TYPES.MethodDefinition
-      ? this.mainMethod.node.value
-      : this.mainMethod.node) as {
+    const { returnType } = (
+      this.mainMethod.node.type === AST_NODE_TYPES.MethodDefinition
+        ? this.mainMethod.node.value
+        : this.mainMethod.node
+    ) as {
       returnType?: TSESTree.TSTypeAnnotation
     }
 

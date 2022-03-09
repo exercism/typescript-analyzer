@@ -27,12 +27,10 @@ const fs = jest.genMockFromModule('fs') as Omit<
 // This is a custom function that our tests can use during setup to specify
 // what the files on the "mock" filesystem should look like when any of the
 // `fs` APIs are used.
-let mockFiles: { [dir: string]: { [file: string]: string } } = Object.create(
-  null
-)
-let writtenFiles: { [dir: string]: { [file: string]: string } } = Object.create(
-  null
-)
+let mockFiles: { [dir: string]: { [file: string]: string } } =
+  Object.create(null)
+let writtenFiles: { [dir: string]: { [file: string]: string } } =
+  Object.create(null)
 
 class NotMocked extends Error {
   public readonly code: string
