@@ -53,7 +53,8 @@ Now, if you accidentally change your function to return a different type,
 compilation fails and you have successfully guarded against a source of bugs.
 `('typescript.general.prefer_explicit_return_type', CommentType.Actionable)
 
-export const PREFER_UNPREFIXED_UNDERSCORE_PARAMETERS = factory<'parameter.name'>`
+export const PREFER_UNPREFIXED_UNDERSCORE_PARAMETERS =
+  factory<'parameter.name'>`
 Unlike other languages, \`_parameter\` does not signify a *private* variable.
 TypeScript has its own constructs for marking variables private (such as the
   \`private\` keyword for class members).
@@ -63,9 +64,9 @@ most IDEs from highlighting that parameter if it's unused, which is actually a
 tool you probably want to keep in this case. Remove the underscore \`_\` from
 ${'parameter.name'} in order to fix this.
 `(
-  'typescript.general.prefer_unprefixed_underscore_parameters',
-  CommentType.Actionable
-)
+    'typescript.general.prefer_unprefixed_underscore_parameters',
+    CommentType.Actionable
+  )
 
 export const NO_METHOD = factory<'method.name'>`
 No method called \`${'method.name'}\`. The tests won't pass without it.
