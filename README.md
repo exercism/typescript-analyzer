@@ -122,3 +122,5 @@ If the comment factories are kept in-sync with `website-copy`, it will be the ex
 [cli]: https://github.com/exercism/cli
 [git-static-analysis]: https://github.com/exercism/javascript-lib-static-analysis
 [git-typescript]: https://github.com/exercism/typescript
+[file-bin]: https://github.com/exercism/typescript-analyzer/bin
+[file-execution-options]: https://github.com/exercism/typesccript-analyzer/src/utils/execution_options.ts
