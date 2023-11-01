@@ -1,0 +1,1 @@
+{"comments":[{"comment":"typescript.general.prefer_explicit_return_type","params":{"signature":"static twoFer(name: string = \"you\") ..."},"type":"actionable"},{"comment":"typescript.two-fer.export_inline","type":"informative"}]}
