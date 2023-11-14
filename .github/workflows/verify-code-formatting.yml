@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: 'Checkout code'
-        uses: actions/checkout@v2
+        uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5
 
       - name: 'Verify formatting of all files'
         run: ./bin/check-formatting.sh
