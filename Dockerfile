@@ -27,4 +27,4 @@ COPY --from=builder /typescript-analyzer/dist /opt/analyzer/dist
 COPY --from=builder /typescript-analyzer/production_node_modules /opt/analyzer/node_modules
 USER appuser
 WORKDIR /opt/analyzer
-ENTRYPOINT ["/opt/analyzer/bin/analyze.sh"]
+ENTRYPOINT ["/opt/analyzer/bin/run.sh"]
